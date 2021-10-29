@@ -21,7 +21,8 @@ class ChaliceApp(cdk.Stack):
             self, 'ChaliceApp', source_dir=RUNTIME_SOURCE_DIR,
             stage_config={
                 'environment_variables': {
-                    'APP_TABLE_NAME': self.dynamodb_table.table_name
+                    'APP_TABLE_NAME': self.dynamodb_table.table_name,
+                    'DYNAMODB_STREAM_ARN': self.dynamodb_table.table_stream_arn,
                 }
             }
         )
@@ -37,6 +38,7 @@ class ChaliceApp(cdk.Stack):
             sort_key=dynamodb.Attribute(
                 name='SK', type=dynamodb.AttributeType.STRING
             ),
+            stream=dynamodb.StreamViewType.NEW_IMAGE,
             removal_policy=cdk.RemovalPolicy.DESTROY)
         cdk.CfnOutput(self, 'AppTableName',
                       value=dynamodb_table.table_name)
