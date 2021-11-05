@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "chalice-cdk-covid-clicker"
+version = "0.1.0"
+description = ""
+authors = ["Louis Pinsard <louisp@theodo.fr>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+boto3 = "^1.19.11"
+"aws-cdk.core" = "^1.130.0"
+"aws-cdk.aws-dynamodb" = "^1.130.0"
+chalice = "^1.26.2"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^4.0.1"
+mypy = "^0.910"
+black = "^21.10b0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

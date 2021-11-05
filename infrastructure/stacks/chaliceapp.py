@@ -10,46 +10,47 @@ from aws_cdk import aws_events as events
 from aws_cdk import aws_events_targets as targets
 
 from chalice.cdk import Chalice
-os.environ['AWS_DEFAULT_REGION'] = 'eu-west-1' #new
+
+os.environ["AWS_DEFAULT_REGION"] = "eu-west-1"  # new
 
 
 RUNTIME_SOURCE_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(__file__)), os.pardir, 'runtime')
+    os.path.dirname(os.path.dirname(__file__)), os.pardir, "runtime"
+)
 
 
 class ChaliceApp(cdk.Stack):
-
     def __init__(self, scope, id, **kwargs):
         super().__init__(scope, id, **kwargs)
         self.dynamodb_table = self._create_ddb_table()
         self.chalice = Chalice(
-            self, 'ChaliceApp', source_dir=RUNTIME_SOURCE_DIR,
+            self,
+            "ChaliceApp",
+            source_dir=RUNTIME_SOURCE_DIR,
             stage_config={
-                'environment_variables': {
-                    'APP_TABLE_NAME': self.dynamodb_table.table_name,
-                    'DYNAMODB_STREAM_ARN': self.dynamodb_table.table_stream_arn,
+                "environment_variables": {
+                    "APP_TABLE_NAME": self.dynamodb_table.table_name,
+                    "DYNAMODB_STREAM_ARN": self.dynamodb_table.table_stream_arn,
                 }
-            }
-        )
-        self.dynamodb_table.grant_read_write_data(
-            self.chalice.get_role('DefaultRole')
+            },
         )
         self.stepfunction = self._create_step_function()
         self.bus = self._create_bus()
         self._create_rule_and_target(self.bus,self.stepfunction)
+        self.dynamodb_table.grant_read_write_data(self.chalice.get_role("DefaultRole"))
 
     def _create_ddb_table(self):
         dynamodb_table = dynamodb.Table(
-            self, 'AppTable',
+            self,
+            "AppTable",
             partition_key=dynamodb.Attribute(
-                name='PK', type=dynamodb.AttributeType.STRING),
-            sort_key=dynamodb.Attribute(
-                name='SK', type=dynamodb.AttributeType.STRING
+                name="PK", type=dynamodb.AttributeType.STRING
             ),
+            sort_key=dynamodb.Attribute(name="SK", type=dynamodb.AttributeType.STRING),
             stream=dynamodb.StreamViewType.NEW_IMAGE,
-            removal_policy=cdk.RemovalPolicy.DESTROY)
-        cdk.CfnOutput(self, 'AppTableName',
-                      value=dynamodb_table.table_name)
+            removal_policy=cdk.RemovalPolicy.DESTROY,
+        )
+        cdk.CfnOutput(self, "AppTableName", value=dynamodb_table.table_name)
         return dynamodb_table
 
     def _create_step_function(self):
