@@ -2,8 +2,13 @@ import os
 
 from aws_cdk import (
     aws_dynamodb as dynamodb,
-    core as cdk
+    core as cdk,
 )
+from aws_cdk import aws_stepfunctions as sfn
+from aws_cdk import aws_stepfunctions_tasks as tasks
+from aws_cdk import aws_events as events
+from aws_cdk import aws_events_targets as targets
+
 from chalice.cdk import Chalice
 os.environ['AWS_DEFAULT_REGION'] = 'eu-west-1' #new
 
@@ -29,6 +34,9 @@ class ChaliceApp(cdk.Stack):
         self.dynamodb_table.grant_read_write_data(
             self.chalice.get_role('DefaultRole')
         )
+        self.stepfunction = self._create_step_function()
+        self.bus = self._create_bus()
+        self._create_rule_and_target(self.bus,self.stepfunction)
 
     def _create_ddb_table(self):
         dynamodb_table = dynamodb.Table(
@@ -43,3 +51,32 @@ class ChaliceApp(cdk.Stack):
         cdk.CfnOutput(self, 'AppTableName',
                       value=dynamodb_table.table_name)
         return dynamodb_table
+
+    def _create_step_function(self):
+        choose_wait_time = tasks.LambdaInvoke(self, "ChooseWaitTime",
+                        lambda_function=self.chalice.get_function("ChooseWaitTime"),
+                        result_selector={"x_seconds.$":"$.Payload"},
+                        result_path="$")
+
+        wait_x = sfn.Wait(self, 'Wait X Seconds',
+                    time= sfn.WaitTime.seconds_path('$.x_seconds'))
+
+        create_virus = tasks.LambdaInvoke(self, "CreateVirus",
+                        lambda_function=self.chalice.get_function("CreateVirus"))
+
+        success = sfn.Succeed(self, "VirusCreated")
+
+        step_function_definition = choose_wait_time.next(wait_x).next(create_virus).next(success)
+
+        state_machine = sfn.StateMachine(self, "CreateVirusMachine",
+                        definition=step_function_definition)
+        return state_machine
+
+    def _create_bus(self):
+        bus = events.EventBus(self,'eventBus',event_bus_name='eventBus')
+        return bus
+
+    def _create_rule_and_target(self,bus:events.EventBus,step_function:sfn.StateMachine):
+        rule = events.Rule(self,'rule',event_bus=bus)
+        rule.add_event_pattern(detail_type=['VIRUS_CREATION_REQUESTED'],source=['Time'])
+        rule.add_target(targets.SfnStateMachine(step_function))
