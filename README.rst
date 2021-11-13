@@ -11,6 +11,12 @@ For more information, see the `Deploying with the AWS CDK
 Quickstart
 ----------
 
+Requirements
+############
+
+CDK
+***
+
 First, you'll need to install the AWS CDK if you haven't already.
 The CDK requires Node.js and npm to run.
 See the `Getting started with the AWS CDK
@@ -21,29 +27,52 @@ more details.
 
   $ npm install -g aws-cdk
 
-Next you'll need to install the requirements for the project.
+AWS Cli
+*******
+
+`Install guide <https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html>`__
+
+You must also have an `AWS profile configured <https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html>`__.
+
+Python 3.9
+**********
+
+Use `pyenv <https://github.com/pyenv/pyenv>`__ to easily manage your python versions
+
+Pipenv
+******
+
+`Install guide <https://github.com/pypa/pipenv>`__
+
+Install
+#######
+
+1. Install the dependencies and create the virtual env
 
 ::
 
-  $ pip install -r requirements.txt
+  $ pipenv install
 
-There's also separate requirements files in the ``infrastructure``
-and ``runtime`` directories if you'd prefer to have separate virtual
-environments for your CDK and Chalice app.
-
-To deploy the application, ``cd`` to the ``infrastructure`` directory.
-If this is you're first time using the CDK you'll need to bootstrap
-your environment.
+2. Activate the virtual env
 
 ::
 
-  $ cdk bootstrap
+  $ pipenv shell
 
-Then you can deploy your application using the CDK.
+
+3. If it's the first time you use the CDK on this account you'll need to bootstrap it.
 
 ::
 
-  $ cdk deploy
+  $ cd infrastructure
+  $ cdk bootstrap --profile <your aws profile>
+
+4. Deploy the backend
+
+::
+
+  $ cd infrastructure
+  $ cdk deploy --profile <your aws profile>
 
 
 Project layout
