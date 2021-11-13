@@ -1,0 +1,15 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+boto3 = "<2.0.0"
+"aws-cdk.core" = "<2.0,>=1.85.0"
+"aws-cdk.aws-dynamodb" = "<2.0,>=1.85.0"
+chalice = {extras = ["cdk"],version = "*"}
+
+[requires]
+python_version = "3.9"
