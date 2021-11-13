@@ -5,7 +5,7 @@ import json
 from boto3.session import Session
 from boto3.dynamodb.types import TypeDeserializer
 from chalice import Chalice,CORSConfig
-from chalice.app import DynamoDBEvent, WebsocketEvent,WebsocketAPI
+from chalice.app import DynamoDBEvent, WebsocketEvent, CloudWatchEvent
 
 app = Chalice(app_name='chaliceCdkTEST')
 dynamodb = boto3.resource('dynamodb')
@@ -124,3 +124,12 @@ def send_message(event:DynamoDBEvent):
             print(is_virus(new_item))
             if is_virus(new_item):
                 return send_message_to_each_connection(new_item['SK'])
+
+
+# cw_event = cloudwatch event = event bridge
+# The rule will be created in the default event bus
+# It's currently not possible to use an other bus
+# https://github.com/aws/chalice/issues/1755
+@app.on_cw_event(event_pattern={"detail-type": ["test-event-bridge"]})
+def print_event(event: CloudWatchEvent):
+    print(event.to_dict())
