@@ -4,8 +4,8 @@ from aws_cdk import (
     aws_dynamodb as dynamodb,
     core as cdk,
 )
-from aws_cdk import aws_stepfunctions as sfn
-from aws_cdk import aws_stepfunctions_tasks as tasks
+import aws_cdk.aws_stepfunctions as sfn
+import aws_cdk.aws_stepfunctions_tasks as tasks
 from aws_cdk import aws_events as events
 from aws_cdk import aws_events_targets as targets
 
