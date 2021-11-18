@@ -8,6 +8,9 @@ from boto3.dynamodb.types import TypeDeserializer
 from chalice import Chalice, CORSConfig
 from chalice.app import DynamoDBEvent, WebsocketEvent
 
+from chalicelib.models.virus import VirusModel
+
+
 app = Chalice(app_name="chaliceCdkTEST")
 dynamodb = boto3.resource("dynamodb")
 dynamodb_table = dynamodb.Table(os.environ.get("APP_TABLE_NAME", ""))
@@ -31,16 +34,10 @@ cors_config = CORSConfig(
 @app.route("/virus", methods=["POST"], cors=cors_config)
 def create_virus():
     virusId = str(uuid.uuid4())
-    item = {
-        "PK": "Virus",
-        "SK": virusId,
-    }
-    dynamodb_table.put_item(Item=item)
-
-
-@app.route("/virus", methods=["POST"], cors=cors_config)
-def create_virus_http():
     create_virus()
+    virus = VirusModel("Virus", virusId)
+    virus.save()
+    return {}
 
 
 @app.route("/virus", methods=["GET"], cors=cors_config)
