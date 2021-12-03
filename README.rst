@@ -25,7 +25,7 @@ Next you'll need to install the requirements for the project.
 
 ::
 
-  $ pip install -r requirements.txt
+  $ poetry install
 
 There's also separate requirements files in the ``infrastructure``
 and ``runtime`` directories if you'd prefer to have separate virtual
@@ -40,6 +40,10 @@ your environment.
   $ cdk bootstrap
 
 Then you can deploy your application using the CDK.
+Before deploying you need to generate the `requirements.txt` file used by CDK to install dependencies
+
+::
+  $ poetry export -f requirements.txt --output requirements.txt --without-hashes
 
 ::
 
