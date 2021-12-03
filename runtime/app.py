@@ -34,7 +34,6 @@ cors_config = CORSConfig(
 @app.route("/virus", methods=["POST"], cors=cors_config)
 def create_virus():
     virusId = str(uuid.uuid4())
-    create_virus()
     virus = VirusModel("Virus", virusId)
     virus.save()
     return {}
@@ -100,12 +99,10 @@ def send_message(event: DynamoDBEvent):
     app.websocket_api.configure(REACT_APP_WEBSOCKET_URL, "api")
     for event_received in event:
         if event_received.event_name == "INSERT":
-            print(event_received.new_image)
             new_item = {
                 k: deserializer.deserialize(v)
                 for k, v in event_received.new_image.items()
             }
-            print(is_virus(new_item))
             if is_virus(new_item):
                 return send_message_to_each_connection(new_item["SK"])
 
